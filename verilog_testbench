@@ -1,0 +1,70 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 24.06.2025 16:48:05
+// Design Name: 
+// Module Name: vending_machine_tb
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module vending_machine_tb();
+
+reg clock, reset, cancel;
+reg [1:0] coin, sel;
+wire PrA, PrB, PrC, change;
+
+vending_machine dut(clock, reset, cancel, coin, sel, PrA, PrB, PrC, change);
+
+
+always #2 clock = ~clock;
+
+initial begin
+    clock = 0;
+    reset = 1; cancel = 0; coin = 2'b00; sel = 2'b00;
+    #4 reset = 0;
+
+    // === Test 1: Buy Product A with ₹5 ===
+    coin = 2'b01;  // Insert ₹5
+    #4 coin = 2'b00;
+    sel = 2'b01;   // Select Product A (₹5)
+    #4 sel = 2'b00;
+
+    // === Test 2: Buy Product B with ₹10 ===
+    #6 coin = 2'b10; // Insert ₹10
+    #4 coin = 2'b00;
+    sel = 2'b10;     // Select Product B (₹10)
+    #4 sel = 2'b00;
+
+    // === Test 3: Buy Product C with ₹20 ===
+    #6 coin = 2'b10; // ₹10
+    #4 coin = 2'b10; // Another ₹10 → total ₹20
+    #4 coin = 2'b00;
+    sel = 2'b11;     // Select Product C (₹20)
+    #4 sel = 2'b00;
+
+    // === Test 4: Insert ₹10, then Cancel ===
+    #6 coin = 2'b10;
+    #4 coin = 2'b00;
+    cancel = 1;
+    #4 cancel = 0;
+
+    // === End Simulation ===
+    #10 $finish;
+end
+
+endmodule
+
+
